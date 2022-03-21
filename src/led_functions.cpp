@@ -24,10 +24,8 @@ void LedFunctions::resetState() {
 }
 
 void LedFunctions::sensingmode() {
-  top_sensor_range =
-      readSensor(ULTRASONIC_TOP, trigger_state_top, previous_micros_top);
-  bottom_sensor_range = readSensor(ULTRASONIC_BOTTOM, trigger_state_bottom,
-                                   previous_micros_bottom);
+  top_sensor_range =    readSensor(ULTRASONIC_TOP, trigger_state_top, previous_micros_top);
+  bottom_sensor_range = readSensor(ULTRASONIC_BOTTOM, trigger_state_bottom, previous_micros_bottom);
   runTopSensorLogic();
   runBottomSensorLogic();
 
