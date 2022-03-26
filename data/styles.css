@@ -7,7 +7,7 @@
 }
 
 body {
-    background-color: white;
+    background-color: gray;
 }
 
 header {
@@ -76,13 +76,13 @@ header > h1 {
 }
 
 .green-glow {
-    border: 10px solid #4dcc7d;
+    border: 15px solid #4dcc7d;
     border-radius: 15%;
     box-shadow: 0 0 20px #31b43a;
 }
 
 .red-glow {
-    border: 10px solid #fc121b;
+    border: 15px solid #fc121b;
     border-radius: 15%;
     box-shadow: 0 0 20px #d01115;
 }
