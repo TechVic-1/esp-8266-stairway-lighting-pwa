@@ -10,8 +10,8 @@
 
 using namespace globalconstants;
 
-const char *ssid = "***";
-const char *password = "***";
+String WIFI_SSID = "Tyko-Net 2.4GHz";
+String WIFI_PASS = "#gjnwb55439#";
 #define WIFI_HOSTNAME "Stairway-Led"
 
 // function prototypes for HTTP handlers
