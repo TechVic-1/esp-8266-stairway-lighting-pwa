@@ -7,12 +7,11 @@
 #include <LittleFS.h>
 #include <NeoPixelBus.h>
 #include <WebSocketsServer.h>
+#include "WiFi_cred.h"
 
 using namespace globalconstants;
 
-String WIFI_SSID = "***";
-String WIFI_PASS = "***";
-#define WIFI_HOSTNAME "Stairway-Led"
+
 
 // function prototypes for HTTP handlers
 void handleNotFound(AsyncWebServerRequest *request);
