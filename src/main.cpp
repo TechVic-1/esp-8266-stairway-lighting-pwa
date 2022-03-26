@@ -4,7 +4,7 @@
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <LittleFS.h>
+#include <FS.h>
 #include <NeoPixelBus.h>
 #include <WebSocketsServer.h>
 #include "WiFi_cred.h"
@@ -28,6 +28,12 @@ static int Fkt = 0;
 static bool On = false;
 
 void connectWifi() {
+
+  // Configures static IP address
+  if (!WiFi.config(local_IP, gateway, subnet)) {
+    Serial.println("STA Failed to configure");
+  }
+
   if (WiFi.status() == WL_CONNECTED) return;
   //Manual Wifi
   Serial.print("Connecting to ");
@@ -39,15 +45,15 @@ void connectWifi() {
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   int i = 0;
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    if (i > 80) i = 0;
+    delay(1000);
+    if (i > 60) i = 0;
     Serial.print(++i);
     Serial.print(' ');
   }
   Serial.println('\n');
   Serial.println("Connection established!");
   Serial.print("IP address:\t"); 
-  Serial.println(WiFi.localIP()); //Get ip and subnet mask
+  Serial.println(WiFi.localIP()); //Get ip
   Serial.print("MAC address:\t"),
   Serial.println(WiFi.macAddress());  //Get the local mac address
 }
@@ -71,7 +77,7 @@ void setup() {
   Serial.println("HTTP server started");
 
   // file system
-  if (!LittleFS.begin()) {
+  if (!SPIFFS.begin()) {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
@@ -173,14 +179,14 @@ bool handleFileRead(AsyncWebServerRequest *request, String path) {
     path += F("index.html");
   String contentType = getContentType(path);
   String pathWithGz = path + F(".gz");
-  if (LittleFS.exists(pathWithGz) || LittleFS.exists(path)) {
+  if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
     bool gzipped = false;
 
-    if (LittleFS.exists(pathWithGz)) {
+    if (SPIFFS.exists(pathWithGz)) {
       gzipped = true;
     }
     AsyncWebServerResponse *response =
-        request->beginResponse(LittleFS, path, contentType);
+        request->beginResponse(SPIFFS, path, contentType);
     if (gzipped) {
       response->addHeader("Content-Encoding", "gzip");
     }
