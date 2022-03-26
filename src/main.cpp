@@ -10,8 +10,8 @@
 
 using namespace globalconstants;
 
-String WIFI_SSID = "Tyko-Net 2.4GHz";
-String WIFI_PASS = "#gjnwb55439#";
+String WIFI_SSID = "***";
+String WIFI_PASS = "***";
 #define WIFI_HOSTNAME "Stairway-Led"
 
 // function prototypes for HTTP handlers
