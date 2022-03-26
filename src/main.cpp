@@ -4,7 +4,7 @@
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <FS.h>
+#include <LittleFS.h>
 #include <NeoPixelBus.h>
 #include <WebSocketsServer.h>
 
@@ -12,6 +12,7 @@ using namespace globalconstants;
 
 const char *ssid = "***";
 const char *password = "***";
+#define WIFI_HOSTNAME "Stairway-Led"
 
 // function prototypes for HTTP handlers
 void handleNotFound(AsyncWebServerRequest *request);
@@ -20,35 +21,47 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload,
                     size_t length);
 
 // LED, server instances and global variables
-NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> leds(NUM_LEDS, DATA_PIN);
+NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> leds(NUM_LEDS, DATA_PIN);
 AsyncWebServer server(80);
 WebSocketsServer webSocket(81);
 LedFunctions led_fcn(&leds);
 static int Fkt = 0;
 static bool On = false;
 
+void connectWifi() {
+  if (WiFi.status() == WL_CONNECTED) return;
+  //Manual Wifi
+  Serial.print("Connecting to ");
+  Serial.print(WIFI_SSID);
+  Serial.println(" ...");
+  WiFi.disconnect();
+  WiFi.mode(WIFI_STA);
+  WiFi.hostname(WIFI_HOSTNAME);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  int i = 0;
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    if (i > 80) i = 0;
+    Serial.print(++i);
+    Serial.print(' ');
+  }
+  Serial.println('\n');
+  Serial.println("Connection established!");
+  Serial.print("IP address:\t"); 
+  Serial.println(WiFi.localIP()); //Get ip and subnet mask
+  Serial.print("MAC address:\t"),
+  Serial.println(WiFi.macAddress());  //Get the local mac address
+}
+
 void setup() {
   // WIFI and server setup
   Serial.begin(115200);
   delay(10);
   Serial.println('\n');
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to ");
-  Serial.print(ssid);
-  Serial.println(" ...");
 
-  int i = 0;
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.print(++i);
-    Serial.print(' ');
-  }
-  WiFi.setSleepMode(WIFI_NONE_SLEEP);
+  //WiFi.setSleepMode(WIFI_NONE_SLEEP);
 
-  Serial.println('\n');
-  Serial.println("Connection established!");
-  Serial.print("IP address:\t");
-  Serial.println(WiFi.localIP());
+  connectWifi();
 
   serverRouting();
 
@@ -59,7 +72,7 @@ void setup() {
   Serial.println("HTTP server started");
 
   // file system
-  if (!SPIFFS.begin()) {
+  if (!LittleFS.begin()) {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
@@ -161,14 +174,14 @@ bool handleFileRead(AsyncWebServerRequest *request, String path) {
     path += F("index.html");
   String contentType = getContentType(path);
   String pathWithGz = path + F(".gz");
-  if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
+  if (LittleFS.exists(pathWithGz) || LittleFS.exists(path)) {
     bool gzipped = false;
 
-    if (SPIFFS.exists(pathWithGz)) {
+    if (LittleFS.exists(pathWithGz)) {
       gzipped = true;
     }
     AsyncWebServerResponse *response =
-        request->beginResponse(SPIFFS, path, contentType);
+        request->beginResponse(LittleFS, path, contentType);
     if (gzipped) {
       response->addHeader("Content-Encoding", "gzip");
     }
