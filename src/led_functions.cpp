@@ -1,6 +1,6 @@
 #include "led_functions.h"
 #include <Arduino.h>
-#include <FastLED.h>
+#include <NeoPixelBus.h>
 
 void LedFunctions::setHue(int hue) {
   this->color.H = hue;
